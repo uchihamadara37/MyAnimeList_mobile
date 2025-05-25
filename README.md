@@ -1,6 +1,8 @@
-# my_anime_list_gemini
+# MyAnimeList
 
-A new Flutter project.
+Project From :
+1. [Andrea Alfian Sah Putra | 123220078](https://github.com/uchihamadara37)
+2. [Sakti Maulana Ibrahim   | 123220101](https://github.com/123220101SaktiMaulana) 
 
 ## Getting Started
 
