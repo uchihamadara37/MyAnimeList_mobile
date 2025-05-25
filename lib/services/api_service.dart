@@ -31,12 +31,21 @@ class ApiService {
         'min_score': min_score.toString(),
       };
 
+      String genresApiParameter = "";
+      if (genres.isNotEmpty) {
+        genresApiParameter = genres.join(',');
+        // Hasil dari .join(',') di sini akan menjadi string "22,4" atau "4,22"
+        // (Urutan dalam Set tidak dijamin, tapi untuk parameter genres Jikan API, urutan ID biasanya tidak masalah)
+      }
+
       if (status.isNotEmpty) queryParams['status'] = status;
       if (rating.isNotEmpty) queryParams['rating'] = rating;
-      if (genres.isNotEmpty) queryParams['genres'] = genres.join(','); // Convert Set to comma-separated string
-      
+      if (genres.isNotEmpty) queryParams['genres'] = genresApiParameter; // Convert Set to comma-separated string
+
       // Print the URL for debugging
-      final uri = Uri.parse('$_baseUrl/anime').replace(queryParameters: queryParams);
+      final uri = Uri.parse(
+        '$_baseUrl/anime',
+      ).replace(queryParameters: queryParams);
       print('Fetching anime from: $uri');
 
       final response = await http.get(uri);
@@ -44,15 +53,25 @@ class ApiService {
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = json.decode(response.body);
         final List<dynamic> animeListJson = data['data'] as List<dynamic>;
-        return animeListJson.map((jsonItem) => Anime.fromJson(jsonItem as Map<String, dynamic>)).toList();
+        return animeListJson
+            .map((jsonItem) => Anime.fromJson(jsonItem as Map<String, dynamic>))
+            .toList();
       } else if (response.statusCode == 429) {
         // Rate limit exceeded, wait and retry or inform user
         print('Rate limit exceeded. Status code: ${response.statusCode}');
         print('Response body: ${response.body}');
         await Future.delayed(Duration(seconds: 5)); // Wait 5 seconds
-        return fetchAnime(query: query, status: status, rating: rating, genres: genres, orderBy: orderBy, sort: sort, page: page, limit: limit); // Retry
-      }
-      else {
+        return fetchAnime(
+          query: query,
+          status: status,
+          rating: rating,
+          genres: genres,
+          orderBy: orderBy,
+          sort: sort,
+          page: page,
+          limit: limit,
+        ); // Retry
+      } else {
         print('Failed to load anime. Status code: ${response.statusCode}');
         print('Response body: ${response.body}');
         throw Exception('Failed to load anime: ${response.statusCode}');
@@ -68,10 +87,11 @@ class ApiService {
     if (response.statusCode == 200) {
       final Map<String, dynamic> data = json.decode(response.body);
       final List<dynamic> genresListJson = data['data'] as List<dynamic>;
-      return genresListJson.map((g) => {
-        'mal_id': g['mal_id'] as int,
-        'name': g['name'] as String,
-      }).toList();
+      return genresListJson
+          .map(
+            (g) => {'mal_id': g['mal_id'] as int, 'name': g['name'] as String},
+          )
+          .toList();
     } else {
       throw Exception('Failed to load genres');
     }
