@@ -11,9 +11,11 @@ class ApiService {
     String query = '',
     String status = '', // airing, complete, upcoming
     String rating = '', // g, pg, pg13, r17, r, rx
-    String genres = '', // comma separated genre ids
+    Set<String> genres = const {}, // comma separated genre ids
     String orderBy = 'popularity', // mal_id, title, start_date, score, etc.
     String sort = 'asc', // asc, desc
+    double min_score = 0, // Minimum score to filter results
+    double max_score = 10, // Maximum score to filter results
     int page = 1,
     int limit = 24, // Jikan default is 25, max is 25
   }) async {
@@ -26,11 +28,12 @@ class ApiService {
         'limit': limit.toString(),
         'order_by': orderBy,
         'sort': sort,
+        'min_score': min_score.toString(),
       };
 
       if (status.isNotEmpty) queryParams['status'] = status;
       if (rating.isNotEmpty) queryParams['rating'] = rating;
-      if (genres.isNotEmpty) queryParams['genres'] = genres;
+      if (genres.isNotEmpty) queryParams['genres'] = genres.join(','); // Convert Set to comma-separated string
       
       // Print the URL for debugging
       final uri = Uri.parse('$_baseUrl/anime').replace(queryParameters: queryParams);

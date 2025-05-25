@@ -70,7 +70,7 @@ class MyApp extends StatelessWidget {
           ),
           bottomNavigationBarTheme: BottomNavigationBarThemeData(
             backgroundColor: Colors.grey[900],
-            selectedItemColor: Colors.deepPurpleAccent,
+            selectedItemColor: Colors.blue[100],
             unselectedItemColor: Colors.white54,
           ),
           dialogTheme: DialogTheme(

@@ -14,6 +14,9 @@ class AnimeProvider with ChangeNotifier {
   // Filter parameters
   String _currentSearchQuery = '';
   String _currentStatusFilter = ''; // e.g., 'airing', 'complete'
+  Set<String> _currentGenreFilter = {}; // e.g., 'action', 'comedy'
+  String _currentRatingFilter = ''; // e.g., 'g', 'pg', 'pg13', etc.
+  double _currentMinScoreFilter = 0.0; // Minimum score filter
   // Add other filters as needed: rating, genre, etc.
   List<Map<String, dynamic>> _genres = []; // For genre filter
   bool _isLoadingGenres = false;
@@ -25,7 +28,12 @@ class AnimeProvider with ChangeNotifier {
   bool get hasMore => _hasMore;
   List<Map<String, dynamic>> get genres => _genres;
   bool get isLoadingGenres => _isLoadingGenres;
+  // untuk filter
   String get currentStatusFilter => _currentStatusFilter;
+  Set<String> get currentGenreFilter => _currentGenreFilter;
+  String get currentRatingFilter => _currentRatingFilter;
+  double get currentMinScoreFilter => _currentMinScoreFilter;
+  String get currentSearchQuery => _currentSearchQuery;
 
   AnimeProvider() {
     fetchInitialAnime();
@@ -50,6 +58,10 @@ class AnimeProvider with ChangeNotifier {
       final newAnime = await _apiService.fetchAnime(
         query: _currentSearchQuery,
         status: _currentStatusFilter,
+        genres: _currentGenreFilter,
+        rating: _currentRatingFilter,
+        min_score: _currentMinScoreFilter,
+        orderBy: 'popularity', // or any other field you want to order by
         page: _currentPage,
         limit: 15, // Fetch fewer items per page for better performance
       );
@@ -88,14 +100,20 @@ class AnimeProvider with ChangeNotifier {
     fetchInitialAnime(); // Refetch with new query
   }
 
-  void applyStatusFilter(String status) {
+  void applyStatusFilter(String status, Set<String> genre, String rating, double minScore) {
     _currentStatusFilter = status;
+    _currentGenreFilter = genre;
+    _currentRatingFilter = rating;
+    _currentMinScoreFilter = minScore;
     fetchInitialAnime(); // Refetch with new status
   }
   
   void clearFilters() {
     _currentSearchQuery = '';
     _currentStatusFilter = '';
+    _currentGenreFilter = {};
+    _currentRatingFilter = '';
+    _currentMinScoreFilter = 0;
     fetchInitialAnime();
   }
 }
