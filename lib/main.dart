@@ -37,7 +37,7 @@ class MyApp extends StatelessWidget {
             iconTheme: IconThemeData(color: Colors.white),
           ),
           scaffoldBackgroundColor: Colors.grey[850], // Warna latar belakang Scaffold
-          cardTheme: CardTheme(
+          cardTheme: CardThemeData(
             color: Colors.grey[800],
             elevation: 2,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -73,7 +73,7 @@ class MyApp extends StatelessWidget {
             selectedItemColor: Colors.blue[100],
             unselectedItemColor: Colors.white54,
           ),
-          dialogTheme: DialogTheme(
+          dialogTheme: DialogThemeData(
             backgroundColor: Colors.grey[800],
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
             titleTextStyle: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
