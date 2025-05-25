@@ -1,0 +1,76 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:my_anime_list_gemini/models/anime_model.dart';
+// Import Anime model
+// import '../models/anime_model.dart'; // Path might need adjustment
+
+class ApiService {
+  static const String _baseUrl = 'https://api.jikan.moe/v4';
+
+  Future<List<Anime>> fetchAnime({
+    String query = '',
+    String status = '', // airing, complete, upcoming
+    String rating = '', // g, pg, pg13, r17, r, rx
+    String genres = '', // comma separated genre ids
+    String orderBy = 'popularity', // mal_id, title, start_date, score, etc.
+    String sort = 'asc', // asc, desc
+    int page = 1,
+    int limit = 24, // Jikan default is 25, max is 25
+  }) async {
+    try {
+      // Construct query parameters
+      Map<String, String> queryParams = {
+        'q': query,
+        'sfw': 'true', // Exclude NSFW by default, user can change if needed
+        'page': page.toString(),
+        'limit': limit.toString(),
+        'order_by': orderBy,
+        'sort': sort,
+      };
+
+      if (status.isNotEmpty) queryParams['status'] = status;
+      if (rating.isNotEmpty) queryParams['rating'] = rating;
+      if (genres.isNotEmpty) queryParams['genres'] = genres;
+      
+      // Print the URL for debugging
+      final uri = Uri.parse('$_baseUrl/anime').replace(queryParameters: queryParams);
+      print('Fetching anime from: $uri');
+
+      final response = await http.get(uri);
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = json.decode(response.body);
+        final List<dynamic> animeListJson = data['data'] as List<dynamic>;
+        return animeListJson.map((jsonItem) => Anime.fromJson(jsonItem as Map<String, dynamic>)).toList();
+      } else if (response.statusCode == 429) {
+        // Rate limit exceeded, wait and retry or inform user
+        print('Rate limit exceeded. Status code: ${response.statusCode}');
+        print('Response body: ${response.body}');
+        await Future.delayed(Duration(seconds: 5)); // Wait 5 seconds
+        return fetchAnime(query: query, status: status, rating: rating, genres: genres, orderBy: orderBy, sort: sort, page: page, limit: limit); // Retry
+      }
+      else {
+        print('Failed to load anime. Status code: ${response.statusCode}');
+        print('Response body: ${response.body}');
+        throw Exception('Failed to load anime: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error fetching anime: $e');
+      throw Exception('Error fetching anime: $e');
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> fetchGenres() async {
+    final response = await http.get(Uri.parse('$_baseUrl/genres/anime'));
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> data = json.decode(response.body);
+      final List<dynamic> genresListJson = data['data'] as List<dynamic>;
+      return genresListJson.map((g) => {
+        'mal_id': g['mal_id'] as int,
+        'name': g['name'] as String,
+      }).toList();
+    } else {
+      throw Exception('Failed to load genres');
+    }
+  }
+}
