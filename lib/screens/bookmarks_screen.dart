@@ -1,16 +1,29 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-// Import providers, models, screens
-import '../providers/bookmark_provider.dart'; // Path might need adjustment
-// import '../models/bookmark_container_model.dart'; // Path might need adjustment
-import 'add_edit_bookmark_container_screen.dart'; // Path might need adjustment
-import 'bookmark_detail_screen.dart'; // Path might need adjustment
+import '../providers/bookmark_provider.dart';
+import 'add_edit_bookmark_container_screen.dart';
+import 'bookmark_detail_screen.dart';
 
-class BookmarksScreen extends StatelessWidget {
+class BookmarksScreen extends StatefulWidget {
+  @override
+  _BookmarksScreenState createState() => _BookmarksScreenState();
+}
+
+class _BookmarksScreenState extends State<BookmarksScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Debug dan paksa muat ulang bookmark container
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      print("[DEBUG] BookmarksScreen initState - Memuat kontainer");
+      Provider.of<BookmarkProvider>(context, listen: false).loadContainers();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    // final bookmarkProvider = Provider.of<BookmarkProvider>(context);
+    print("[DEBUG] BookmarksScreen build dijalankan");
 
     return Scaffold(
       appBar: AppBar(
@@ -18,6 +31,8 @@ class BookmarksScreen extends StatelessWidget {
       ),
       body: Consumer<BookmarkProvider>(
         builder: (context, provider, child) {
+          print("[DEBUG] Jumlah kontainer: ${provider.containers.length}");
+
           if (provider.isLoading && provider.containers.isEmpty) {
             return Center(child: CircularProgressIndicator());
           }
@@ -31,7 +46,8 @@ class BookmarksScreen extends StatelessWidget {
                 children: [
                   Icon(Icons.bookmark_border_rounded, size: 80, color: Colors.grey[600]),
                   SizedBox(height: 16),
-                  Text('Anda belum memiliki wadah bookmark.', style: TextStyle(fontSize: 18, color: Colors.grey[400])),
+                  Text('Anda belum memiliki wadah bookmark.',
+                      style: TextStyle(fontSize: 18, color: Colors.grey[400])),
                   SizedBox(height: 8),
                   Text('Buat satu dengan menekan tombol "+".', style: TextStyle(color: Colors.grey[500])),
                 ],
@@ -97,12 +113,12 @@ class BookmarksScreen extends StatelessWidget {
                     ],
                   ),
                   onTap: () {
-                     Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => BookmarkDetailScreen(container: container),
-                        ),
-                      );
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => BookmarkDetailScreen(container: container),
+                      ),
+                    );
                   },
                 ),
               );
@@ -143,7 +159,7 @@ class BookmarksScreen extends StatelessWidget {
               onPressed: () {
                 provider.deleteContainer(containerId);
                 Navigator.of(dialogContext).pop();
-                 ScaffoldMessenger.of(context).showSnackBar(
+                ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text('Wadah bookmark dihapus.')),
                 );
               },
