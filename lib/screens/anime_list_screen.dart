@@ -9,6 +9,7 @@ import '../widgets/anime_card.dart';
 import '../widgets/filter_options_widget.dart';
 import '../utils/shared_prefs_util.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'anime_detail_screen.dart';
 
 class AnimeListScreen extends StatefulWidget {
   @override
@@ -211,8 +212,7 @@ class _AnimeListScreenState extends State<AnimeListScreen> {
 
                 return ListView.builder(
                   controller: _scrollController,
-                  itemCount:
-                      provider.animeList.length + (provider.hasMore ? 1 : 0),
+                  itemCount: provider.animeList.length + (provider.hasMore ? 1 : 0),
                   itemBuilder: (context, index) {
                     if (index == provider.animeList.length) {
                       return Center(child: CircularProgressIndicator());
@@ -221,10 +221,14 @@ class _AnimeListScreenState extends State<AnimeListScreen> {
                     return AnimeCard(
                       anime: anime,
                       onTap: () {
-                        print('Tapped on ${anime.title}');
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => AnimeDetailScreen(anime: anime),
+                          ),
+                        );
                       },
-                      onBookmarkTap:
-                          () => _showAddToBookmarkDialog(context, anime),
+                      onBookmarkTap: () => _showAddToBookmarkDialog(context, anime),
                     );
                   },
                 );
