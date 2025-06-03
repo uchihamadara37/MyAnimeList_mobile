@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:intl/date_symbol_data_local.dart';
+//import 'package:my_anime_list_gemini/screens/anime_list_screen.dart';
 import 'package:provider/provider.dart';
 // import 'dart:io'; // Required for Platform.isAndroid, etc.
 
@@ -8,11 +10,16 @@ import 'providers/bookmark_provider.dart';
 
 // Import Screens
 import 'screens/home_screen.dart';
+import 'utils/shared_prefs_util.dart';
 
 // Import Services (Database Helper needs to be initialized)
 // import 'services/database_helper.dart';
 
-void main() {
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await initializeDateFormatting('id_ID');
+  await SharedPrefsUtil.saveLastOpened(); // Simpan saat aplikasi dibuka
   runApp(MyApp());
 }
 

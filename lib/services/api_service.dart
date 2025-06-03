@@ -1,8 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:my_anime_list_gemini/models/anime_model.dart';
-// Import Anime model
-// import '../models/anime_model.dart'; // Path might need adjustment
+import '../models/anime_model.dart';
 
 class ApiService {
   static const String _baseUrl = 'https://api.jikan.moe/v4';
@@ -11,19 +9,17 @@ class ApiService {
     String query = '',
     String status = '', // airing, complete, upcoming
     String rating = '', // g, pg, pg13, r17, r, rx
-    Set<String> genres = const {}, // comma separated genre ids
-    String orderBy = 'popularity', // mal_id, title, start_date, score, etc.
-    String sort = 'asc', // asc, desc
-    double min_score = 0, // Minimum score to filter results
-    double max_score = 10, // Maximum score to filter results
+    Set<String> genres = const {}, // genre ids comma separated
+    String orderBy = 'popularity',
+    String sort = 'asc',
+    double min_score = 0,
     int page = 1,
-    int limit = 24, // Jikan default is 25, max is 25
+    int limit = 24,
   }) async {
     try {
-      // Construct query parameters
-      Map<String, String> queryParams = {
+      final Map<String, String> queryParams = {
         'q': query,
-        'sfw': 'true', // Exclude NSFW by default, user can change if needed
+        'sfw': 'true',
         'page': page.toString(),
         'limit': limit.toString(),
         'order_by': orderBy,
@@ -40,12 +36,10 @@ class ApiService {
 
       if (status.isNotEmpty) queryParams['status'] = status;
       if (rating.isNotEmpty) queryParams['rating'] = rating;
-      if (genres.isNotEmpty) queryParams['genres'] = genresApiParameter; // Convert Set to comma-separated string
+      if (genres.isNotEmpty) queryParams['genres'] = genres.join(',');
 
-      // Print the URL for debugging
-      final uri = Uri.parse(
-        '$_baseUrl/anime',
-      ).replace(queryParameters: queryParams);
+      final uri = Uri.parse('$_baseUrl/anime').replace(queryParameters: queryParams);
+
       print('Fetching anime from: $uri');
 
       final response = await http.get(uri);
@@ -57,6 +51,7 @@ class ApiService {
             .map((jsonItem) => Anime.fromJson(jsonItem as Map<String, dynamic>))
             .toList();
       } else if (response.statusCode == 429) {
+
         // Rate limit exceeded, wait and retry or inform user
         print('Rate limit exceeded. Status code: ${response.statusCode}');
         print('Response body: ${response.body}');
@@ -75,10 +70,29 @@ class ApiService {
         print('Failed to load anime. Status code: ${response.statusCode}');
         print('Response body: ${response.body}');
         throw Exception('Failed to load anime: ${response.statusCode}');
+
       }
     } catch (e) {
       print('Error fetching anime: $e');
       throw Exception('Error fetching anime: $e');
+    }
+  }
+
+  Future<Anime> fetchAnimeDetail(int malId) async {
+    try {
+      final uri = Uri.parse('$_baseUrl/anime/$malId');
+      final response = await http.get(uri);
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = json.decode(response.body);
+        final Map<String, dynamic> animeJson = data['data'] as Map<String, dynamic>;
+        return Anime.fromJson(animeJson);
+      } else {
+        throw Exception('Failed to load anime detail, status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error fetching anime detail: $e');
+      throw Exception('Error fetching anime detail: $e');
     }
   }
 

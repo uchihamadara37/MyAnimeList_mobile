@@ -2,23 +2,27 @@ class Anime {
   final int malId;
   final String title;
   final String imageUrl;
+  final String url;          // Link MyAnimeList
+  final String? trailerUrl;  // Link trailer YouTube, nullable
   final String? synopsis;
   final String? type;
   final String? source;
   final int? episodes;
-  final String? status; // e.g., "Finished Airing", "Currently Airing"
-  final String? airedFrom; // ISO 8601 date
-  final String? airedTo; // ISO 8601 date
+  final String? status;
+  final String? airedFrom;
+  final String? airedTo;
   final double? score;
   final int? rank;
   final int? popularity;
   final List<String> genres;
-  final String? rating; // e.g. "PG-13 - Teens 13 or older"
+  final String? rating;
 
   Anime({
     required this.malId,
     required this.title,
     required this.imageUrl,
+    required this.url,
+    this.trailerUrl,
     this.synopsis,
     this.type,
     this.source,
@@ -44,9 +48,11 @@ class Anime {
     return Anime(
       malId: json['mal_id'] as int,
       title: json['title'] as String,
-      imageUrl: json['images']?['jpg']?['large_image_url'] as String? ?? 
-                json['images']?['jpg']?['image_url'] as String? ?? 
+      imageUrl: json['images']?['jpg']?['large_image_url'] as String? ??
+                json['images']?['jpg']?['image_url'] as String? ??
                 'https://placehold.co/200x300/2D2D2D/FFFFFF?text=No+Image',
+      url: json['url'] as String,
+      trailerUrl: json['trailer']?['url'] as String?,  // Ambil trailer URL, bisa null
       synopsis: json['synopsis'] as String?,
       type: json['type'] as String?,
       source: json['source'] as String?,
