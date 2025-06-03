@@ -65,12 +65,12 @@ class _FilterOptionsWidgetState extends State<FilterOptionsWidget> {
           children: [
             Text(
               'Status:',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 color: Colors.white,
+                fontWeight: FontWeight.bold,
               ),
             ),
-            SizedBox(height: 5),
+            SizedBox(height: 8),
             DropdownButtonFormField<String>(
               value: _selectedStatus,
               dropdownColor: Colors.grey[700],
